@@ -75,3 +75,21 @@ func TestParseBasicObjects(t *testing.T) {
 		t.Fatalf("unexpected element count %d", len(arr.Elements))
 	}
 }
+
+func TestFindStartXRef(t *testing.T) {
+	pdfData := []byte("%PDF-1.4\n1 0 obj\n<<>>\nendobj\nstartxref\n123\n%%EOF\n")
+	offset, err := findStartXRef(pdfData)
+	if err != nil {
+		t.Fatalf("findStartXRef returned error: %v", err)
+	}
+	if offset != 123 {
+		t.Fatalf("expected startxref offset 123, got %d", offset)
+	}
+}
+
+func TestFindStartXRefMissing(t *testing.T) {
+	_, err := findStartXRef([]byte("%PDF-1.4\n%%EOF\n"))
+	if err == nil {
+		t.Fatal("expected error for missing startxref")
+	}
+}
